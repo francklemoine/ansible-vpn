@@ -1,0 +1,11 @@
+---
+
+# tags:
+#   ovpn_create:           openvpn server install and configure
+#   ovpn_getclient:        get client configuration
+#   ovpn_remove:           stop and remove the container
+
+- name: vpn
+  hosts: vpn
+  roles:
+    - vpn

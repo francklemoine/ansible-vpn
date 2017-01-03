@@ -1,0 +1,69 @@
+---
+# tasks
+
+- name: permettre le forwarding IPv4
+  sysctl:
+    name: net.ipv4.ip_forward
+    value: 1
+    sysctl_set: yes
+    state: present
+    reload: yes
+  delegate_to: '{{ ovpn_client }}'
+  remote_user: '{{ remote_user }}'
+  tags: ovpn_init, client_init
+
+
+- name: client | packages
+  apt: name='{{ item }}' state=present
+  with_items:
+    - openvpn
+  delegate_to: '{{ ovpn_client }}'
+  remote_user: '{{ remote_user }}'
+  tags: ovpn_init, client_init
+
+
+- name: client | store key
+  copy:
+    content: '{{ ovpn_secret_content | default(ovpn_server_secret_result.stdout, true) }}'
+    dest: '/etc/openvpn/{{ ovpn_client_secret_name }}'
+    mode: 0600
+  delegate_to: '{{ ovpn_client }}'
+  remote_user: '{{ remote_user }}'
+  tags: ovpn_init, client_init
+
+
+- name: iptables (NAT sur tun0)
+  command: "iptables -t nat -A POSTROUTING -o tun0 -j MASQUERADE"
+  delegate_to: '{{ ovpn_client }}'
+  remote_user: '{{ remote_user }}'
+  tags: ovpn_init, client_init
+
+
+- name: iptables (NAT sur tun0) - persistent
+  lineinfile:
+    dest: /etc/iptables.up.rules
+    regexp: '^#?-A POSTROUTING -o .+ -j MASQUERADE'
+    line: '-A POSTROUTING -o tun0 -j MASQUERADE'
+  delegate_to: '{{ ovpn_client }}'
+  remote_user: '{{ remote_user }}'
+  tags: ovpn_init, client_init
+
+
+- name: autoriser OpenVPN à charger les configurations dans /etc/openvpn au démarrage
+  lineinfile:
+    dest: /etc/default/openvpn
+    regexp: '^#?AUTOSTART="all"'
+    line: 'AUTOSTART="all"'
+  delegate_to: '{{ ovpn_client }}'
+  remote_user: '{{ remote_user }}'
+  tags: ovpn_init, client_init
+
+
+- name: systemd configuration
+  systemd:
+    state: started
+    enabled: yes
+    name: "openvpn@{{ ovpn_client_name }}"
+  delegate_to: '{{ ovpn_client }}'
+  remote_user: '{{ remote_user }}'
+  tags: ovpn_init, client_init

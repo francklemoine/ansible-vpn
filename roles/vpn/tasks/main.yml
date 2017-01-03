@@ -1,0 +1,7 @@
+---
+
+- include: 'server.yml'
+  when: ovpn_server_enabled
+
+- include: 'client.yml'
+  when: ovpn_client_enabled

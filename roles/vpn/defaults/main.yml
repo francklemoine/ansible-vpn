@@ -1,0 +1,25 @@
+---
+# default
+
+openvpn_server_enabled: yes
+openvpn_client_enabled: no
+
+# related to the Docker container
+ovpn_data: "ovpn-data"
+
+ovpn_server_container_name: ovpn
+
+ovpn_secret_content: ''
+
+ovpn_url: vpn.domain.tld
+ovpn_genconfig_additional_parameters: ""
+ovpn_initpki_passphrase: "pass_phrase"
+ovpn_initpki_common_name: "common_name"
+
+# related to the client
+ovpn_client: "10.0.0.10"
+ovpn_client_name: "client_name"
+# client fix ip address
+ovpn_client_tun0_inet : "192.168.0.10"
+ovpn_client_tun0_ptp : "192.168.0.11"
+ovpn_client_secret_name: '{{ ovpn_client_name }}.conf'
