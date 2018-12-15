@@ -57,7 +57,7 @@
 
 - name: run container
   docker_container:
-    name: {{ ovpn_server_container_name }}
+    name: "{{ ovpn_server_container_name }}"
     image: "kylemanna/openvpn"
     volumes:
       - "{{ ovpn_data }}:/etc/openvpn"
